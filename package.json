@@ -15,6 +15,7 @@
     "http-errors": "~1.6.3",
     "jquery": "^3.6.3",
     "leaflet": "^1.9.3",
+    "moment": "^2.29.4",
     "mongodb": "^4.13.0",
     "mongoose": "^6.8.4",
     "mongosh": "^1.6.2",
