@@ -11,7 +11,7 @@ const UsuarioSchema = new Schema({
             reservar(idBici, fechaInicio, fechaFin, callback) {
                 const reserva = new Reserva({
                     fechaInicio: fechaInicio,
-                    fechaFin: fechaFin,
+                    fechaFinal: fechaFinal,
                     usuario: this._id,
                     bicicleta: idBici
                 })
