@@ -3,6 +3,7 @@ const Reserva = require('reserva');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const uniqueValidator = require('mongoose-unique-validator');
 
 const validaterEmail = ((email)=> {
     const expRegular = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -21,7 +22,8 @@ const UsuarioSchema = new Schema({
             lowercase: true,
             required: [true, 'El email es obligatorio'],
             validate: [validaterEmail, 'Debes ingresar un email válido'],
-            match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g]
+            match: [/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g],
+            unique: true,
         },
         password: {
             type: String,
@@ -33,7 +35,7 @@ const UsuarioSchema = new Schema({
             type: Boolean,
             default: false
         }
-},
+    },
     {
         methods: {
             reservar(idBici, fechaInicio, fechaFin, callback) {
@@ -50,7 +52,7 @@ const UsuarioSchema = new Schema({
             }
         }
     })
-
+UsuarioSchema.plugin(uniqueValidator, {message: 'El {PATH} ya existe con otro usuario'})
 UsuarioSchema.pre('save', (next)=> {
     if (this.isModified('password')) {
         this.password = bcrypt.hashSync(this.password, saltRounds);
