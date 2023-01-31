@@ -4,6 +4,10 @@ const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const uniqueValidator = require('mongoose-unique-validator');
+const Token = require('../models/token');
+const transporter = require('../mailer/mailer')
+const nodemailer = require('nodemailer');
+const mailer = nodemailer.createTransport(transporter)
 
 const validaterEmail = ((email)=> {
     const expRegular = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -29,6 +33,10 @@ const UsuarioSchema = new Schema({
             type: String,
             required: [true, 'La contraseña es obligatoria'],
         },
+        confirmPassword: {
+            type: String,
+            required: [true, 'Debes confirmar la contraseña'],
+        },
         passwordResetToken: String,
         passwordResetTokenExpires: Date,
         verified: {
@@ -38,7 +46,7 @@ const UsuarioSchema = new Schema({
     },
     {
         methods: {
-            reservar(idBici, fechaInicio, fechaFin, callback) {
+            reservar(idBici, fechaInicio, fechaFinal, callback) {
                 const reserva = new Reserva({
                     fechaInicio: fechaInicio,
                     fechaFinal: fechaFinal,
@@ -49,6 +57,27 @@ const UsuarioSchema = new Schema({
             },
             validarPassword(password) {
                 return bcrypt.compareSync(password. this.password);
+            },
+            enviarEmailBienvenida(callback) {
+                const token = new Token({_userId: this.id, token: crypto.randomBytes(16).toString('hex')});
+                const email_destination = this.email;
+                token.save((err) => {
+                    if (err) {
+                        throw err
+                    };
+                    const mailOptions = {
+                        from: 'no-reply@bicicletas.com',
+                        to: email_destination,
+                        subject: 'Verificacion de cuenta',
+                        text: 'Hola,\n\n'+', Por favor, para verificar su cuenta, haga click en este link: \n' + 'https://localhost:3000/token/confirmation/' + token.token + '.\n'
+                    };
+                    mailer.sendMail(mailOptions, (err)=> {
+                        if (err) {
+                            throw err;
+                        }
+                        console.log('A verification has been sent to' + email_destination)
+                    })
+                })
             }
         }
     })
