@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Reserva = require('reserva');
+const Reserva = require('../models/reserva');
 const Schema = mongoose.Schema;
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -64,7 +64,7 @@ const UsuarioSchema = new Schema({
                 token.save((err) => {
                     if (err) {
                         throw err
-                    };
+                    }
                     const mailOptions = {
                         from: 'no-reply@bicicletas.com',
                         to: email_destination,

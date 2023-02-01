@@ -3,13 +3,16 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
-
+const passport = require('passport')
+const Session = require('express-session')
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const tokenRouter = require('./routes/token');
 const bicicletasRouter = require('./routes/bicicletas');
 const bicicletasAPIRouter = require('./routes/api/bicicletas');
 const usuariosAPIRouter = require('./routes/api/usuarios');
+
+const store = new Session.MemoryStore
 
 const app = express();
 
@@ -22,7 +25,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(Session({
+  cookie: {
+    maxAge: 864000000,
+    store: store,
+    saveUninitialized: true,
+    resave: 'true',
+    secret: 'true',
+  }
+}))
 app.use('/', indexRouter);
 app.use('/usuarios', usersRouter);
 app.use('token', tokenRouter);
@@ -44,5 +55,8 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+app.use(passport.initialize());
+app.use(passport.session())
 
 module.exports = app;
