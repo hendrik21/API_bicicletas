@@ -59,4 +59,29 @@ app.use(function(err, req, res, next) {
 app.use(passport.initialize());
 app.use(passport.session())
 
+app.get('/login', (req, res) => {
+  res.render('session/login')
+});
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('/')
+})
+
+app.post('/login', (req, res, next)=> {
+  passport.authenticate('local', (err, user, info) => {
+    if (err) {
+      return next(err)
+    }
+    if (!user) {
+      return res.render('session/login', {info});
+    }
+    req.login(user, (err)=> {
+      if (err) {
+        return next(err)
+      }
+      return res.redirect('/');
+    });
+  })(req, res, next);
+})
+
 module.exports = app;
