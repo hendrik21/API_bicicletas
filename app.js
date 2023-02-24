@@ -82,6 +82,15 @@ app.post('/login', (req, res, next)=> {
       return res.redirect('/');
     });
   })(req, res, next);
-})
+}
+
+function loggedIn(req, res, next) {
+  if (req.user) {
+    next();
+  } else {
+    console.log('Usuario sin loguearse');
+    res.redirect('/login')
+  }
+}
 
 module.exports = app;
