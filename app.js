@@ -5,12 +5,15 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const passport = require('./config/passport')
 const Session = require('express-session')
+const jwt = require('jsonwebtoken');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const tokenRouter = require('./routes/token');
 const bicicletasRouter = require('./routes/bicicletas');
 const bicicletasAPIRouter = require('./routes/api/bicicletas');
 const usuariosAPIRouter = require('./routes/api/usuarios');
+const {static} = require("express");
+const {decode} = require("jsonwebtoken");
 
 const store = new Session.MemoryStore
 
@@ -19,7 +22,7 @@ const app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-
+app.set('secretKey','jwt_pwd_!!223344')
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -81,7 +84,7 @@ app.post('/login', (req, res, next)=> {
       }
       return res.redirect('/');
     });
-  })(req, res, next);
+  })(req, res, next)
 }
 
 function loggedIn(req, res, next) {
@@ -91,6 +94,22 @@ function loggedIn(req, res, next) {
     console.log('Usuario sin loguearse');
     res.redirect('/login')
   }
+}
+
+function validateUser(req, res, next) {
+  jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), (err, decoded) => {
+    if (err) {
+      res.json({
+        status: 'error',
+        message: err.message,
+        data: null
+      })
+    } else {
+      req.body.userId = decoded.id;
+      console.log('JWT Verify: ' + decoded);
+      next();
+    }
+  })
 }
 
 module.exports = app;
